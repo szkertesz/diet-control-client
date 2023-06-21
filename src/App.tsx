@@ -1,7 +1,9 @@
+import { Typography } from '@mui/material'
+
 function App() {
   return (
     <>
-      <h1>DC App</h1>
+      <Typography variant="h1">DC App</Typography>
     </>
   )
 }
