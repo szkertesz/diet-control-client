@@ -1,12 +1,11 @@
 import { Outlet } from 'react-router-dom'
 
-const ItemsLayout = () => {
+const FoodItemsLayout = () => {
   return (
     <section>
-      <h2>Items layout</h2>
       <Outlet />
     </section>
   )
 }
 
-export default ItemsLayout
+export default FoodItemsLayout

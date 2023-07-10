@@ -1,10 +1,15 @@
+import { Typography } from '@mui/material'
 import { FunctionComponent } from 'react'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ItemListPageProps {}
+interface FoodItemsPageProps {}
 
-const ItemListPage: FunctionComponent<ItemListPageProps> = () => {
-  return <h1>Food item list page</h1>
+const FoodItemsPage: FunctionComponent<FoodItemsPageProps> = () => {
+  return (
+    <>
+      <Typography variant="h1">Food items</Typography>
+    </>
+  )
 }
 
-export default ItemListPage
+export default FoodItemsPage
