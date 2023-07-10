@@ -6,6 +6,8 @@ import {
   ThemeProvider,
   responsiveFontSizes,
 } from '@mui/material/styles'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import App from './app.tsx'
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
@@ -30,10 +32,12 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     {/* change the CSS injection order to give precedence our custom styles over MUI
      https://mui.com/material-ui/guides/interoperability/#css-injection-order
      */}
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <App />
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </LocalizationProvider>
   </React.StrictMode>
 )
