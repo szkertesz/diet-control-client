@@ -7,25 +7,24 @@ import { Typography, Badge } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getData } from '../api/client'
+import { IDateData } from '../api/data-response.interface'
 
 dayjs.extend(utc)
 
 const DashboardPage = () => {
+  const navigate = useNavigate()
   const [date, setDate] = useState<Dayjs>(dayjs())
   const [isLoading, setIsLoading] = useState(false)
-  const [highlightedDays, setHighlightedDays] = useState<number[] | null>([
-    1, 2, 28,
-  ])
-  const navigate = useNavigate()
+  const [filledDates, setFilledDates] = useState<Dayjs[] | null>(null)
   const initialDate = dayjs()
+  const highlightedDays = filledDates?.map(date => date.get('date'))
+  console.log(filledDates)
 
-  const fetchHighlightedDays = async (date: Dayjs) => {
+  const getFilledDates = async (date: Dayjs) => {
     try {
-      const dates = await fetchFilledDates(date)
-      const filledDates = dates?.map(date =>
-        new Date(date.date).getDate()
-      ) as number[]
-      setHighlightedDays(filledDates)
+      const datesWithData = await fetchFilledDates(date)
+      const dates = datesWithData.map(date => dayjs(date.date))
+      setFilledDates(dates)
       setIsLoading(false)
     } catch (error) {
       console.error(error)
@@ -38,9 +37,9 @@ const DashboardPage = () => {
     return dates
   }
 
-  function EnhancedCalendarDay(
+  const EnhancedCalendarDay = (
     props: PickersDayProps<Dayjs> & { highlightedDays?: number[] }
-  ) {
+  ) => {
     const { highlightedDays = [], day, outsideCurrentMonth, ...other } = props
 
     const isSelected =
@@ -66,8 +65,8 @@ const DashboardPage = () => {
 
   const handleMonthChange = async (date: Dayjs) => {
     setIsLoading(true)
-    setHighlightedDays([])
-    await fetchHighlightedDays(date)
+    setFilledDates(null)
+    await getFilledDates(date)
   }
 
   const handleDateChange = (newDate: Dayjs) => {
@@ -78,7 +77,7 @@ const DashboardPage = () => {
   }
 
   useEffect(() => {
-    fetchHighlightedDays(initialDate)
+    getFilledDates(initialDate)
   }, [])
 
   return (
