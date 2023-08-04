@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios'
-import { IResponseData } from './client.interface'
+import { IDateData, IDataResponse } from './data-response.interface'
 
 // base axios instance
 export const client = axios.create({
@@ -22,24 +22,26 @@ export const clientRequest = async <T>(
   }
 }
 
-export const getData = async (url = '/'): Promise<IResponseData[]> => {
+export const getData = async (url = '/'): Promise<IDateData[]> => {
   const config: AxiosRequestConfig = {
     method: 'GET',
     url,
     transformResponse: [
       function (data) {
+        const json = JSON.parse(data)
+        data = json.data
         return data
       },
     ],
   }
 
-  return await clientRequest<IResponseData[]>(config)
+  return await clientRequest<IDateData[]>(config)
 }
 
 export const postData = async (
   url = '/',
   body = {}
-): Promise<IResponseData[]> => {
+): Promise<IDataResponse> => {
   const config: AxiosRequestConfig = {
     method: 'POST',
     url,
@@ -51,5 +53,5 @@ export const postData = async (
     ],
   }
 
-  return await clientRequest<IResponseData[]>(config)
+  return await clientRequest<IDataResponse>(config)
 }
