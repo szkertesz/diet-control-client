@@ -17,6 +17,7 @@ const router = createBrowserRouter(
       <Route index element={<DashboardPage />} />
       <Route path="dates/:date" element={<EditDatePage />} />
       <Route path="dates/new/:date" element={<NewDatePage />} />
+      <Route path="dates/edit/:date" element={<EditDatePage />} />
       <Route path="/food-items" element={<FoodItemsLayout />}>
         <Route index element={<FoodItemsPage />} />
       </Route>

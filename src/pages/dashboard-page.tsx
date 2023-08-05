@@ -7,7 +7,6 @@ import { Typography, Badge } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getData } from '../api/client'
-import { IDateData } from '../api/data-response.interface'
 
 dayjs.extend(utc)
 
@@ -18,12 +17,11 @@ const DashboardPage = () => {
   const [filledDates, setFilledDates] = useState<Dayjs[] | null>(null)
   const initialDate = dayjs()
   const highlightedDays = filledDates?.map(date => date.get('date'))
-  console.log(filledDates)
 
   const getFilledDates = async (date: Dayjs) => {
     try {
       const datesWithData = await fetchFilledDates(date)
-      const dates = datesWithData.map(date => dayjs(date.date))
+      const dates = datesWithData.map(date => dayjs.utc(date.date).startOf('day'))
       setFilledDates(dates)
       setIsLoading(false)
     } catch (error) {
@@ -70,10 +68,12 @@ const DashboardPage = () => {
   }
 
   const handleDateChange = (newDate: Dayjs) => {
-    // const isoDate = newDate.utc().toISOString()
-    const isoDate = dayjs.utc(newDate).format('YYYY-MM-DD')
-    setDate(newDate)
-    navigate(`/dates/new/${isoDate}`)
+    const date = dayjs.utc(newDate).startOf('day')
+    const isoDate = date.format('YYYY-MM-DD')
+    const filledDatesStrings = filledDates?.map(date => date.format('YYYY-MM-DD'))
+    const pageType: ('new' | 'edit') = filledDatesStrings?.includes(isoDate) ? 'edit' : 'new'
+    setDate(date)
+    navigate(`/dates/${pageType}/${isoDate}`)
   }
 
   useEffect(() => {
