@@ -1,39 +1,22 @@
 import dayjs, { Dayjs } from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar'
-import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay'
 import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton'
+import { PickersDay, PickersDayProps } from '@mui/x-date-pickers/PickersDay'
 import { Typography, Badge } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getData } from '../api/client'
+import { useFilledDates } from '../api/useFilledDates'
 
 dayjs.extend(utc)
 
 const DashboardPage = () => {
   const navigate = useNavigate()
-  const [date, setDate] = useState<Dayjs>(dayjs())
-  const [isLoading, setIsLoading] = useState(false)
-  const [filledDates, setFilledDates] = useState<Dayjs[] | null>(null)
   const initialDate = dayjs()
+  const [date, setDate] = useState<Dayjs>(initialDate)
+  const [queryDate, setQueryDate] = useState<Dayjs>(initialDate)
+  const {filledDates, isLoading, isError} = useFilledDates(queryDate)
   const highlightedDays = filledDates?.map(date => date.get('date'))
-
-  const getFilledDates = async (date: Dayjs) => {
-    try {
-      const datesWithData = await fetchFilledDates(date)
-      const dates = datesWithData.map(date => dayjs.utc(date.date).startOf('day'))
-      setFilledDates(dates)
-      setIsLoading(false)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const fetchFilledDates = async (date: Dayjs) => {
-    const isoDate = date.format('YYYY-MM-DD')
-    const dates = await getData(`api/dates/filled/${isoDate}`)
-    return dates
-  }
 
   const EnhancedCalendarDay = (
     props: PickersDayProps<Dayjs> & { highlightedDays?: number[] }
@@ -61,28 +44,27 @@ const DashboardPage = () => {
     )
   }
 
-  const handleMonthChange = async (date: Dayjs) => {
-    setIsLoading(true)
-    setFilledDates(null)
-    await getFilledDates(date)
+  const handleMonthChange = (date: Dayjs) => {
+    setQueryDate(date)
   }
 
   const handleDateChange = (newDate: Dayjs) => {
-    const date = dayjs.utc(newDate).startOf('day')
-    const isoDate = date.format('YYYY-MM-DD')
-    const filledDatesStrings = filledDates?.map(date => date.format('YYYY-MM-DD'))
-    const pageType: ('new' | 'edit') = filledDatesStrings?.includes(isoDate) ? 'edit' : 'new'
+    const isoDate = dayjs
+      .utc(newDate)
+      .startOf('day')
+      .format('YYYY-MM-DD')
+    const filledISODates = filledDates?.map(date => date.format('YYYY-MM-DD'))
+    const pageType: ('new' | 'edit') = filledISODates?.includes(isoDate) ? 'edit' : 'new'
     setDate(date)
     navigate(`/dates/${pageType}/${isoDate}`)
   }
 
-  useEffect(() => {
-    getFilledDates(initialDate)
-  }, [])
-
   return (
     <>
       <Typography variant="h1">Dashboard</Typography>
+
+      {isError ?
+      <p>Something went wrong :-/</p> :
       <DateCalendar
         value={date}
         onChange={newDate => handleDateChange(newDate as dayjs.Dayjs)}
@@ -103,7 +85,7 @@ const DashboardPage = () => {
             lineHeight: 1,
           },
         }}
-      />
+      />}
     </>
   )
 }
