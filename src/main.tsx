@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { SWRConfig } from 'swr'
 import { StyledEngineProvider } from '@mui/material/styles'
 import {
   createTheme,
@@ -29,15 +30,17 @@ theme = responsiveFontSizes(theme)
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    {/* change the CSS injection order to give precedence our custom styles over MUI
+    <SWRConfig value={{ provider: () => new Map() }}>
+      {/* change the CSS injection order to give precedence our custom styles over MUI
      https://mui.com/material-ui/guides/interoperability/#css-injection-order
      */}
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </LocalizationProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <StyledEngineProvider injectFirst>
+          <ThemeProvider theme={theme}>
+            <App />
+          </ThemeProvider>
+        </StyledEngineProvider>
+      </LocalizationProvider>
+    </SWRConfig>
   </React.StrictMode>
 )
