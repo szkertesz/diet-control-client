@@ -1,12 +1,11 @@
-
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Close';
+import * as React from 'react'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import AddIcon from '@mui/icons-material/Add'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/DeleteOutlined'
+import SaveIcon from '@mui/icons-material/Save'
+import CancelIcon from '@mui/icons-material/Close'
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -19,75 +18,44 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-} from '@mui/x-data-grid';
-import {
-  randomCreatedDate,
-  randomTraderName,
-  randomId,
-  randomArrayItem,
-} from '@mui/x-data-grid-generator';
-
-const roles = ['Market', 'Finance', 'Development'];
-const randomRole = () => {
-  return randomArrayItem(roles);
-};
-
-const initialRows: GridRowsProp = [
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 25,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 36,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 19,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 28,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 23,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-  },
-];
+  GridValidRowModel,
+} from '@mui/x-data-grid'
+import { randomId } from '@mui/x-data-grid-generator'
+import { postData } from '../api/client'
+import { useFoodItems } from '../api/useFoodItems'
+import { IFoodItem } from '../api/data-response.interface'
+import { useEffect } from 'react'
 
 interface EditToolbarProps {
-  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void;
+  setRows: (newRows: (oldRows: GridRowsProp) => GridRowsProp) => void
   setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
-  ) => void;
+    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
+  ) => void
 }
 
 function EditToolbar(props: EditToolbarProps) {
-  const { setRows, setRowModesModel } = props;
+  const { setRows, setRowModesModel } = props
 
   const handleClick = () => {
-    const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: '', age: '', isNew: true }]);
-    setRowModesModel((oldModel) => ({
+    const key = randomId()
+    setRows(oldRows => [
+      ...oldRows,
+      {
+        _id: key,
+        name: '',
+        energy: '',
+        protein: '',
+        fat: '',
+        ch: '',
+        notes: '',
+        isNew: true,
+      },
+    ])
+    setRowModesModel(oldModel => ({
       ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-    }));
-  };
+      [key]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
+    }))
+  }
 
   return (
     <GridToolbarContainer>
@@ -95,58 +63,68 @@ function EditToolbar(props: EditToolbarProps) {
         Add record
       </Button>
     </GridToolbarContainer>
-  );
+  )
 }
 
 export default function FoodItemsDataGrid() {
-  const [rows, setRows] = React.useState(initialRows);
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
+  const { foodItems, isLoading, isError } = useFoodItems()
+  const initialRows: GridRowsProp = foodItems as IFoodItem[]
+  // const [rows, setRows] = React.useState<GridValidRowModel | null>(null)
+  const [rows, setRows] = React.useState(initialRows)
+  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
+    {}
+  )
 
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (
+    params,
+    event
+  ) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
+      event.defaultMuiPrevented = true
     }
-  };
+  }
 
   const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })
+  }
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })
+  }
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
-  };
+    setRows(rows.filter(row => row._id !== id))
+  }
 
   const handleCancelClick = (id: GridRowId) => () => {
     setRowModesModel({
       ...rowModesModel,
       [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
+    })
 
-    const editedRow = rows.find((row) => row.id === id);
+    const editedRow = rows.find(row => row._id === id)
     if (editedRow!.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
+      setRows(rows.filter(row => row._id !== id))
     }
-  };
+  }
 
   const processRowUpdate = (newRow: GridRowModel) => {
-    const updatedRow = { ...newRow, isNew: false };
-    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    return updatedRow;
-  };
+    const updatedRow = { ...newRow, isNew: false }
+    console.log(updatedRow)
+    setRows(rows.map(row => (row._id === newRow._id ? updatedRow : row)))
+    postData('/api/food', newRow)
+    return updatedRow
+  }
 
   const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
+    setRowModesModel(newRowModesModel)
+  }
 
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Name', width: 180, editable: true },
     {
-      field: 'age',
-      headerName: 'Age',
+      field: 'energy',
+      headerName: 'Energy',
       type: 'number',
       width: 80,
       align: 'left',
@@ -154,19 +132,32 @@ export default function FoodItemsDataGrid() {
       editable: true,
     },
     {
-      field: 'joinDate',
-      headerName: 'Join date',
-      type: 'date',
-      width: 180,
+      field: 'protein',
+      headerName: 'Protein',
+      type: 'number',
+      width: 80,
       editable: true,
     },
     {
-      field: 'role',
-      headerName: 'Department',
-      width: 220,
+      field: 'fat',
+      headerName: 'Fat',
+      type: 'number',
+      width: 80,
       editable: true,
-      type: 'singleSelect',
-      valueOptions: ['Market', 'Finance', 'Development'],
+    },
+    {
+      field: 'ch',
+      headerName: 'Carbs',
+      type: 'number',
+      width: 80,
+      editable: true,
+    },
+    {
+      field: 'notes',
+      headerName: 'Notes',
+      type: 'text',
+      width: 196,
+      editable: true,
     },
     {
       field: 'actions',
@@ -175,7 +166,7 @@ export default function FoodItemsDataGrid() {
       width: 100,
       cellClassName: 'actions',
       getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
 
         if (isInEditMode) {
           return [
@@ -194,7 +185,7 @@ export default function FoodItemsDataGrid() {
               onClick={handleCancelClick(id)}
               color="inherit"
             />,
-          ];
+          ]
         }
 
         return [
@@ -211,10 +202,16 @@ export default function FoodItemsDataGrid() {
             onClick={handleDeleteClick(id)}
             color="inherit"
           />,
-        ];
+        ]
       },
     },
-  ];
+  ]
+
+  useEffect(() => {
+    if (foodItems) {
+      setRows(foodItems)
+    }
+  }, [foodItems])
 
   return (
     <Box
@@ -229,22 +226,28 @@ export default function FoodItemsDataGrid() {
         },
       }}
     >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        slots={{
-          toolbar: EditToolbar,
-        }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-      />
+      {isLoading ? <span>Loading ...</span> : null}
+      {isError ? <span>Something went wrong :-/</span> : null}
+      {rows ? (
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          // onProcessRowUpdateError={handleProcessRowUpdateError}
+          slots={{
+            toolbar: EditToolbar,
+          }}
+          slotProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          getRowId={row => row._id}
+          autoHeight
+        />
+      ) : null}
     </Box>
-  );
+  )
 }
-

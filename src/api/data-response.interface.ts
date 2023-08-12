@@ -1,6 +1,5 @@
-interface IFoodItemFull {
+export interface IFoodItem {
   _id: string
-  qty: number
   name: string
   energy: number
   protein: number
@@ -8,10 +7,7 @@ interface IFoodItemFull {
   ch: number
   note: string
 }
-interface IFoodItemPartial {
-  _id: string
-  qty: number
-}
+
 interface INutriData {
   energy: number
   protein: number
@@ -23,7 +19,7 @@ export interface IDateData {
   date: string
   meals: {
     name: string
-    foodItems: IFoodItemFull[] | IFoodItemPartial
+    foodItems: (IFoodItem & { qty: number })[]
     sum: INutriData
   }[]
   sum: INutriData

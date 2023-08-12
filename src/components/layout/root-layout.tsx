@@ -5,7 +5,7 @@ const RootLayout = () => {
   return (
     <>
       <header>
-        <Container>
+        <Container maxWidth="md">
           <Box
             component={'nav'}
             sx={{
@@ -25,7 +25,7 @@ const RootLayout = () => {
         </Container>
       </header>
       <main>
-        <Container>
+        <Container maxWidth="md">
           <Outlet />
         </Container>
       </main>
