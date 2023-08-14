@@ -39,7 +39,6 @@ function EditToolbar(props: EditToolbarProps) {
   const handleClick = () => {
     const key = randomId()
     setRows(oldRows => [
-      ...oldRows,
       {
         _id: key,
         name: '',
@@ -50,6 +49,7 @@ function EditToolbar(props: EditToolbarProps) {
         notes: '',
         isNew: true,
       },
+      ...oldRows,
     ])
     setRowModesModel(oldModel => ({
       ...oldModel,
