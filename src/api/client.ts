@@ -57,3 +57,17 @@ export const postData = async (
 
   return await clientRequest<IDataResponse>(config)
 }
+
+export const deleteData = async (url = '/'): Promise<IDataResponse> => {
+  const config: AxiosRequestConfig = {
+    method: 'DELETE',
+    url,
+    transformResponse: [
+      function (data) {
+        return data
+      },
+    ],
+  }
+
+  return await clientRequest<IDataResponse>(config)
+}

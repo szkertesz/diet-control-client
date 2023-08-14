@@ -21,7 +21,7 @@ import {
   GridValidRowModel,
 } from '@mui/x-data-grid'
 import { randomId } from '@mui/x-data-grid-generator'
-import { postData } from '../api/client'
+import { deleteData, postData } from '../api/client'
 import { useFoodItems } from '../api/useFoodItems'
 import { IFoodItem } from '../api/data-response.interface'
 import { useEffect } from 'react'
@@ -93,6 +93,7 @@ export default function FoodItemsDataGrid() {
   }
 
   const handleDeleteClick = (id: GridRowId) => () => {
+    deleteData(`api/food/${id}`)
     setRows(rows.filter(row => row._id !== id))
   }
 
