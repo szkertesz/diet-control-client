@@ -48,11 +48,19 @@ export const postData = async (
     method: 'POST',
     url,
     data: body,
-    transformResponse: [
-      function (data) {
-        return data
-      },
-    ],
+  }
+
+  return await clientRequest<IDataResponse>(config)
+}
+
+export const updateData = async (
+  url = '/',
+  body = {}
+): Promise<IDataResponse> => {
+  const config: AxiosRequestConfig = {
+    method: 'PATCH',
+    url,
+    data: body,
   }
 
   return await clientRequest<IDataResponse>(config)
@@ -62,11 +70,6 @@ export const deleteData = async (url = '/'): Promise<IDataResponse> => {
   const config: AxiosRequestConfig = {
     method: 'DELETE',
     url,
-    transformResponse: [
-      function (data) {
-        return data
-      },
-    ],
   }
 
   return await clientRequest<IDataResponse>(config)
